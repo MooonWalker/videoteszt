@@ -144,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
             mVideoView.setVideoURI(videoUri);
             //mVideoView.setVideoPath(String.valueOf(videoUri));
             mVideoView.requestFocus();
-            // Add media controls (play, pause, etc.)
+
             mVideoView.start();
         }
         else
