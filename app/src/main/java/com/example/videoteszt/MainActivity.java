@@ -25,6 +25,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import java.io.File;
 import java.util.concurrent.CountedCompleter;
 
 public class MainActivity extends AppCompatActivity {
@@ -48,15 +49,25 @@ public class MainActivity extends AppCompatActivity {
     {
         super.onCreate(savedInstanceState);
 
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-        mVideoView = binding.videoView;
+        //binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(R.layout.activity_main);
+        mVideoView = findViewById(R.id.videoView);
+
+        // Create a media controller and attach it to the VideoView
+// Set the MediaController so we can use it to control video playback
+        MediaController mediaController = new MediaController(this);
+        mediaController.setAnchorView(mVideoView);
+        mVideoView.setMediaController(mediaController);
+        //setContentView(R.layout.activity_main);
+
+
+
 
         if (Build.VERSION.SDK_INT >= 23) {
             if (Build.VERSION.SDK_INT >= 33) {
                 if (Build.VERSION.SDK_INT >= 34) {
-                    if (!(PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED))) {
+                    if (!(PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)))
+                    {
                         Boolean flag = ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED);
                         ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.READ_MEDIA_IMAGES, android.Manifest.permission.READ_MEDIA_VIDEO,
 
@@ -64,14 +75,17 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
-                if (!(PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_MEDIA_IMAGES))) {
+                if (!(PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_MEDIA_IMAGES)))
+                {
                     Boolean flag = ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.READ_MEDIA_IMAGES);
                     ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_MEDIA_LOCATION, android.Manifest.permission.READ_MEDIA_IMAGES, android.Manifest.permission.READ_MEDIA_VIDEO}, 138);
                 }
             }
 
-            if (Build.VERSION.SDK_INT >= 29) {
-                if (!(PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_MEDIA_LOCATION))) {
+            if (Build.VERSION.SDK_INT >= 29)
+            {
+                if (!(PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_MEDIA_LOCATION)))
+                {
                     Boolean flag = ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.ACCESS_MEDIA_LOCATION);
                     ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_MEDIA_LOCATION}, 138);
                 }
@@ -79,7 +93,8 @@ public class MainActivity extends AppCompatActivity {
             }
 
             //no authorization yet
-            if (!(PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE))) {
+            if (!(PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE)))
+            {
                 Boolean flag = ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.READ_EXTERNAL_STORAGE);
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 138);
             } else //authorization exists already
@@ -115,12 +130,20 @@ public class MainActivity extends AppCompatActivity {
     }
     private void loadVideo()
     {
-        Uri videoUri = getVideoUriFromDCIM();
-       // videoUri=Uri.parse(Environment.getExternalStorageDirectory().getAbsolutePath()+"/DCIM/20241203_114538.mp4");
+        // Specify the path to the video file in the DCIM directory
+        File dcimDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
+        File videoFile = new File(dcimDirectory, "robot.mp4");
+        String videoPath = videoFile.getAbsolutePath();
+
+        //Uri videoUri = getVideoUriFromDCIM();
+        // Set the video URI and start playback
+        Uri videoUri = Uri.parse(videoPath);
+
         if (videoUri != null)
         {
             mVideoView.setVideoURI(videoUri);
             //mVideoView.setVideoPath(String.valueOf(videoUri));
+            mVideoView.requestFocus();
             // Add media controls (play, pause, etc.)
             mVideoView.start();
         }
