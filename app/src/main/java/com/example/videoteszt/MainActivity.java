@@ -114,12 +114,14 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void checkPermissionAndLoadVideo() {
+    private void checkPermissionAndLoadVideo()
+    {
         String permission = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) ?
                 Manifest.permission.READ_MEDIA_VIDEO :
                 Manifest.permission.READ_EXTERNAL_STORAGE;
 
-        if (ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED)
+        {
             // You can use the API that requires the permission.
             loadVideo();
         } else {
@@ -144,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
             mVideoView.setVideoURI(videoUri);
             //mVideoView.setVideoPath(String.valueOf(videoUri));
             mVideoView.requestFocus();
-
+                                                                        //Start video playback
             mVideoView.start();
         }
         else
@@ -183,8 +185,10 @@ public class MainActivity extends AppCompatActivity {
                 selection,
                 selectionArgs,
                 sortOrder
-        )) {
-            if (cursor != null && cursor.moveToFirst()) {
+        ))
+        {
+            if (cursor != null && cursor.moveToFirst())
+            {
                 int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID);
                 int nameColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DISPLAY_NAME);
 
