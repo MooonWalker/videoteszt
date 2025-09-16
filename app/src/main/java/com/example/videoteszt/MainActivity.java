@@ -1,6 +1,7 @@
 package com.example.videoteszt;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.ContentUris;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -18,6 +19,7 @@ import com.example.videoteszt.databinding.ActivityMainBinding;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -26,17 +28,23 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.concurrent.CountedCompleter;
 
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
     private VideoView mVideoView;
-    private ActivityResultLauncher<String> requestPermissionLauncher =
+    private final ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
+                if (isGranted)
+                {
                     // Permission is granted. Continue the action or workflow in your app.
-                    loadVideo();
+                    try {
+                        loadVideo();
+                    } catch (FileNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
                 } else {
                     // Explain to the user that the feature is unavailable because the
                     // feature requires a permission that the user has denied.
@@ -44,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
+    @SuppressLint("ObsoleteSdkInt")
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -63,9 +72,12 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        if (Build.VERSION.SDK_INT >= 23) {
-            if (Build.VERSION.SDK_INT >= 33) {
-                if (Build.VERSION.SDK_INT >= 34) {
+        if (Build.VERSION.SDK_INT >= 23)
+        {
+            if (Build.VERSION.SDK_INT >= 33)
+            {
+                if (Build.VERSION.SDK_INT >= 34)
+                {
                     if (!(PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)))
                     {
                         Boolean flag = ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED);
@@ -97,12 +109,20 @@ public class MainActivity extends AppCompatActivity {
             {
                 Boolean flag = ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.READ_EXTERNAL_STORAGE);
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 138);
-            } else //authorization exists already
+            }
+            else //authorization exists already
             {
 
             }
         }
-        checkPermissionAndLoadVideo();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+        {
+            try {
+                checkPermissionAndLoadVideo();
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) ->
@@ -114,11 +134,9 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void checkPermissionAndLoadVideo()
-    {
-        String permission = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) ?
-                Manifest.permission.READ_MEDIA_VIDEO :
-                Manifest.permission.READ_EXTERNAL_STORAGE;
+    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
+    private void checkPermissionAndLoadVideo() throws FileNotFoundException {
+        String permission = Manifest.permission.READ_MEDIA_VIDEO;
 
         if (ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED)
         {
@@ -130,11 +148,10 @@ public class MainActivity extends AppCompatActivity {
             requestPermissionLauncher.launch(permission);
         }
     }
-    private void loadVideo()
-    {
+    private void loadVideo() throws FileNotFoundException {
         // Specify the path to the video file in the DCIM directory
         File dcimDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
-        File videoFile = new File(dcimDirectory, "robot.mp4");
+        File videoFile = new File(dcimDirectory, "robot4.mp4");
         String videoPath = videoFile.getAbsolutePath();
 
         //Uri videoUri = getVideoUriFromDCIM();
@@ -147,7 +164,15 @@ public class MainActivity extends AppCompatActivity {
             //mVideoView.setVideoPath(String.valueOf(videoUri));
             mVideoView.requestFocus();
                                                                         //Start video playback
-            mVideoView.start();
+            try
+            {
+                mVideoView.start();
+            } catch (Exception e)
+            {
+                throw new RuntimeException(e);
+            }
+
+
         }
         else
         {
@@ -156,6 +181,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressLint("ObsoleteSdkInt")
     private Uri getVideoUriFromDCIM ()
     {
         Uri collection;
